@@ -102,4 +102,35 @@ class HolidayServiceUnitTest {
         // assert
         Assertions.assertThat(result.getDeleteCnt()).isEqualTo(5);
     }
+
+    @Test
+    @DisplayName("success case : 배치 자동화 정상 동작")
+    void 배치_자동화_정상_동작() {
+        // arrange
+        CountryResponseDto countryResponseDto = new CountryResponseDto("KR", "대한민국");
+        List<CountryResponseDto> countries = List.of(countryResponseDto);
+
+        Mockito.when(holidayWebClientService.getCountries())
+            .thenReturn(Mono.just(countries));
+
+        HolidayApiResponseDto holidayApiResponseDto1 = new HolidayApiResponseDto("2024-12-31",
+            "New Year Eve", "New Year Eve", "KR", true, true, 1909);
+        HolidayApiResponseDto holidayApiResponseDto2 = new HolidayApiResponseDto("2025-01-01",
+            "New Year", "New Year", "KR", true, true, 1909);
+
+        Mockito.when(holidayWebClientService.getHolidays(anyInt(), anyString()))
+            .thenReturn(Mono.just(List.of(holidayApiResponseDto1, holidayApiResponseDto2)));
+
+        Mockito.when(holidayUpsertService.upsertAll(any()))
+            .thenReturn(2);
+
+        // act
+        holidayService.syncCurrentAndPreviousYear();
+
+        // assert
+        Mockito.verify(holidayWebClientService, Mockito.times(1)).getCountries();
+        Mockito.verify(holidayWebClientService, Mockito.times(2))
+            .getHolidays(anyInt(), anyString());
+        Mockito.verify(holidayUpsertService, Mockito.times(1)).upsertAll(any());
+    }
 }

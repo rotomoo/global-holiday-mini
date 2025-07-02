@@ -51,7 +51,7 @@ public class HolidayService {
         List<HolidayApiResponseDto> result = Flux.fromIterable(requests)
             .flatMap(mono -> mono)
             .flatMap(Flux::fromIterable)
-            .collect(Collectors.toSet()) // Set 중복 제거
+            .collect(Collectors.toSet()) // 중복 제거
             .blockOptional()
             .map(ArrayList::new)
             .orElseGet(ArrayList::new);
@@ -103,5 +103,32 @@ public class HolidayService {
         int deleteCnt = holidayRepository.deleteByCountryCodeAndYears(countryCode, years);
 
         return new DeleteHolidayResponseDto(deleteCnt);
+    }
+
+    /**
+     * 매년 1월 2일 01:00 KST 전년도, 금년도 공휴일 자동 동기화
+     */
+    public void syncCurrentAndPreviousYear() {
+        int currentYear = LocalDate.now().getYear();
+        int previousYear = currentYear - 1;
+        List<CountryResponseDto> countries = holidayWebClientService.getCountries().block();
+
+        List<Mono<List<HolidayApiResponseDto>>> requests = new ArrayList<>();
+        for (CountryResponseDto country : countries) {
+            requests.add(
+                holidayWebClientService.getHolidays(previousYear, country.getCountryCode()));
+            requests.add(
+                holidayWebClientService.getHolidays(currentYear, country.getCountryCode()));
+        }
+
+        List<HolidayApiResponseDto> result = Flux.fromIterable(requests)
+            .flatMap(mono -> mono)
+            .flatMap(Flux::fromIterable)
+            .collect(Collectors.toSet()) // 중복 제거
+            .blockOptional()
+            .map(ArrayList::new)
+            .orElseGet(ArrayList::new);
+
+        holidayUpsertService.upsertAll(result);
     }
 }

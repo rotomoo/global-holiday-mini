@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 
-@Tag(name = "공휴일 API", description = "공휴일 APII")
+@Tag(name = "공휴일 API", description = "공휴일 API")
 public interface HolidayControllerSwaggerSpec {
 
     @Operation(
