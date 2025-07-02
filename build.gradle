@@ -50,6 +50,10 @@ dependencies {
 
     // webClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // circuit-breaker
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+    implementation 'io.github.resilience4j:resilience4j-reactor'
 }
 
 dependencyManagement {

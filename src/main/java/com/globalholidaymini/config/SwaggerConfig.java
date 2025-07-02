@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -29,7 +30,14 @@ public class SwaggerConfig {
     private String fetchCountriesFromExternalApi() {
         try {
             String url = "https://date.nager.at/api/v3/AvailableCountries";
-            RestTemplate restTemplate = new RestTemplate();
+            
+            // 타임아웃 설정
+            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout(2000);  // 연결 시도 타임아웃
+            factory.setReadTimeout(3000);     // 데이터 응답 대기 타임아웃
+
+            RestTemplate restTemplate = new RestTemplate(factory);
+
             String json = restTemplate.getForObject(url, String.class);
 
             ObjectMapper objectMapper = new ObjectMapper();

@@ -19,6 +19,24 @@ spring:
       enabled: true
       path: /h2-console
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      holidayApi:
+        slidingWindowSize: 5  # 슬라이딩 윈도우 5
+        minimumNumberOfCalls: 3  # 최소 3번 호출후 실패율 계산
+        failureRateThreshold: 50  # 실패율 50%
+        waitDurationInOpenState: 10s  # 회로 OPEN -> CLOSE 대기 시간
+
+  retry:
+    instances:
+      holidayApi:
+        maxAttempts: 3  # 최대 재시도 횟수 (최초 호출 포함 총 3번)
+        waitDuration: 1s  # 재시도 사이 간격 1초
+        retryExceptions: # 예외 재시도 명시
+          - org.springframework.web.reactive.function.client.WebClientRequestException
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+
 logging:
   level:
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
