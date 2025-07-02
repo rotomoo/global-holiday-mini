@@ -1,6 +1,7 @@
 package com.globalholidaymini.dto;
 
 import com.globalholidaymini.common.PagingInfo;
+import com.globalholidaymini.dto.querydsl.FindAllHolidayCustomDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AllArgsConstructor;

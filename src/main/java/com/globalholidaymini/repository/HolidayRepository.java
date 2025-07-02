@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {
 
+    int deleteByCountryCodeAndYears(String countryCode, Integer years);
 }

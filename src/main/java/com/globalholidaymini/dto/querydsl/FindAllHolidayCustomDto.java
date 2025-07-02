@@ -1,4 +1,4 @@
-package com.globalholidaymini.dto;
+package com.globalholidaymini.dto.querydsl;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;

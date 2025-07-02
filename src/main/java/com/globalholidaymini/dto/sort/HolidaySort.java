@@ -1,4 +1,4 @@
-package com.globalholidaymini.dto;
+package com.globalholidaymini.dto.sort;
 
 import com.globalholidaymini.common.Sortable;
 import lombok.Getter;

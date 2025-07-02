@@ -1,6 +1,7 @@
 package com.globalholidaymini.dto;
 
 import com.globalholidaymini.common.Sortable;
+import com.globalholidaymini.dto.sort.HolidaySort;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;

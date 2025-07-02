@@ -2,8 +2,8 @@ package com.globalholidaymini.querydsl;
 
 import static com.globalholidaymini.entity.QHoliday.holiday;
 
-import com.globalholidaymini.dto.FindAllHolidayCustomDto;
 import com.globalholidaymini.dto.GetHolidaysRequestDto;
+import com.globalholidaymini.dto.querydsl.FindAllHolidayCustomDto;
 import com.globalholidaymini.entity.Holiday;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;

@@ -1,10 +1,13 @@
-package com.globalholidaymini.controller.v1.swagger;
+package com.globalholidaymini.controller.v1.spec;
 
 import com.globalholidaymini.common.BaseResponseData;
 import com.globalholidaymini.dto.CreateRecentFiveYearsHolidaysResponseDto;
+import com.globalholidaymini.dto.DeleteHolidayResponseDto;
 import com.globalholidaymini.dto.GetHolidaysRequestDto;
 import com.globalholidaymini.dto.GetHolidaysResponseDto;
+import com.globalholidaymini.dto.RefreshHolidayResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 
 @Tag(name = "공휴일 API", description = "공휴일 APII")
-public interface HolidayControllerSwagger {
+public interface HolidayControllerSwaggerSpec {
 
     @Operation(
         summary = "최근 5년 공휴일 데이터 적재",
@@ -81,4 +84,42 @@ public interface HolidayControllerSwagger {
         }
     )
     BaseResponseData getHolidays(@ParameterObject GetHolidaysRequestDto requestDto);
+
+    @Operation(
+        summary = "공휴일 재동기화",
+        description = "특정 연도와 국가의 공휴일 데이터를 재요청 후 덮어쓴다",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "성공",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = RefreshHolidayResponseDto.class)
+                )
+            )
+        }
+    )
+    BaseResponseData refreshHolidays(
+        @Parameter(description = "국가 코드", example = "KR") String countryCode,
+        @Parameter(description = "연도", example = "2025") Integer years
+    );
+
+    @Operation(
+        summary = "공휴일 삭제",
+        description = "특정 연도와 국가의 공휴일 데이터를 삭제한다",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "성공",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = DeleteHolidayResponseDto.class)
+                )
+            )
+        }
+    )
+    BaseResponseData deleteHolidays(
+        @Parameter(description = "국가 코드", example = "KR") String countryCode,
+        @Parameter(description = "연도", example = "2025") Integer years
+    );
 }

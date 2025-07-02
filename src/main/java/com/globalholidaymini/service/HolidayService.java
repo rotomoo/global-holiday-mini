@@ -3,12 +3,15 @@ package com.globalholidaymini.service;
 
 import com.globalholidaymini.common.PagingInfo;
 import com.globalholidaymini.dto.CreateRecentFiveYearsHolidaysResponseDto;
-import com.globalholidaymini.dto.FindAllHolidayCustomDto;
+import com.globalholidaymini.dto.DeleteHolidayResponseDto;
 import com.globalholidaymini.dto.GetHolidaysRequestDto;
 import com.globalholidaymini.dto.GetHolidaysResponseDto;
+import com.globalholidaymini.dto.RefreshHolidayResponseDto;
 import com.globalholidaymini.dto.feign.CountryResponseDto;
 import com.globalholidaymini.dto.feign.HolidayApiResponseDto;
+import com.globalholidaymini.dto.querydsl.FindAllHolidayCustomDto;
 import com.globalholidaymini.querydsl.HolidayQueryDsl;
+import com.globalholidaymini.repository.HolidayRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +30,7 @@ public class HolidayService {
     private final HolidayWebClientService holidayWebClientService;
     private final HolidayUpsertService holidayUpsertService;
     private final HolidayQueryDsl holidayQueryDsl;
+    private final HolidayRepository holidayRepository;
 
     /**
      * 최근 5년 공휴일 데이터 적재
@@ -68,5 +73,35 @@ public class HolidayService {
 
         return new GetHolidaysResponseDto(PagingInfo.createPagingInfo(historiesPage),
             historiesPage.getContent());
+    }
+
+    /**
+     * 공휴일 재동기화
+     *
+     * @param countryCode
+     * @param years
+     * @return
+     */
+    public RefreshHolidayResponseDto refreshHoliday(String countryCode, Integer years) {
+        List<HolidayApiResponseDto> holidayApiResponseDtos = holidayWebClientService.getHolidays(
+            years, countryCode).block();
+
+        int totalCnt = holidayUpsertService.upsertAll(holidayApiResponseDtos);
+
+        return new RefreshHolidayResponseDto(totalCnt);
+    }
+
+    /**
+     * 공휴일 삭제
+     *
+     * @param countryCode
+     * @param years
+     * @return
+     */
+    @Transactional
+    public DeleteHolidayResponseDto deleteHoliday(String countryCode, Integer years) {
+        int deleteCnt = holidayRepository.deleteByCountryCodeAndYears(countryCode, years);
+
+        return new DeleteHolidayResponseDto(deleteCnt);
     }
 }

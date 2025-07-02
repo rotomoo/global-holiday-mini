@@ -5,8 +5,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.globalholidaymini.dto.CreateRecentFiveYearsHolidaysResponseDto;
+import com.globalholidaymini.dto.DeleteHolidayResponseDto;
+import com.globalholidaymini.dto.RefreshHolidayResponseDto;
 import com.globalholidaymini.dto.feign.CountryResponseDto;
 import com.globalholidaymini.dto.feign.HolidayApiResponseDto;
+import com.globalholidaymini.repository.HolidayRepository;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +30,9 @@ class HolidayServiceUnitTest {
 
     @Mock
     private HolidayUpsertService holidayUpsertService;
+
+    @Mock
+    private HolidayRepository holidayRepository;
 
     @InjectMocks
     private HolidayService holidayService;
@@ -55,5 +61,45 @@ class HolidayServiceUnitTest {
 
         // assert
         Assertions.assertThat(result.getTotalCnt()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("success case : 공휴일 정상 재동기화")
+    void 공휴일_정상_재동기화() {
+        // arrange
+        String countryCode = "KR";
+        Integer years = 2025;
+
+        HolidayApiResponseDto dto = new HolidayApiResponseDto(
+            "2025-10-03", "개천절", "National Foundation Day", "KR", true, true, 1909
+        );
+
+        Mockito.when(holidayWebClientService.getHolidays(years, countryCode))
+            .thenReturn(Mono.just(List.of(dto)));
+
+        Mockito.when(holidayUpsertService.upsertAll(any())).thenReturn(1);
+
+        // act
+        RefreshHolidayResponseDto result = holidayService.refreshHoliday(countryCode, years);
+
+        // assert
+        Assertions.assertThat(result.getTotalCnt()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("success case : 공휴일 정상 삭제")
+    void 공휴일_정상_삭제() {
+        // arrange
+        String countryCode = "KR";
+        Integer years = 2025;
+
+        Mockito.when(holidayRepository.deleteByCountryCodeAndYears(countryCode, years))
+            .thenReturn(5);
+
+        // act
+        DeleteHolidayResponseDto result = holidayService.deleteHoliday(countryCode, years);
+
+        // assert
+        Assertions.assertThat(result.getDeleteCnt()).isEqualTo(5);
     }
 }
